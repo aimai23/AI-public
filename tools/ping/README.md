@@ -14,17 +14,17 @@
 ### 実行例
 
 ```bash
-python3 tools/ping_hosts.py tools/hosts_example.txt
+python3 tools/ping/ping_hosts.py tools/ping/hosts_example.txt
 ```
 
 ```bash
 # TCP 22/443 の疎通確認
-python3 tools/ping_hosts.py tools/hosts_example.txt -m tcp -p 22 -p 443
+python3 tools/ping/ping_hosts.py tools/ping/hosts_example.txt -m tcp -p 22 -p 443
 ```
 
 ```bash
 # ICMP + TCP の同時確認
-python3 tools/ping_hosts.py tools/hosts_example.txt -m both -p 22
+python3 tools/ping/ping_hosts.py tools/ping/hosts_example.txt -m both -p 22
 ```
 
 ### 主なオプション
@@ -37,7 +37,7 @@ python3 tools/ping_hosts.py tools/hosts_example.txt -m both -p 22
 - `-w, --workers`: 並列ワーカー数（既定: `20`）
 - `-f, --show-fail-output`: 失敗対象のみ詳細メッセージを標準出力にも表示（通常はログファイルのみ）
 - `-a, --show-all-output`: 全対象の詳細メッセージを標準出力にも表示（通常はログファイルのみ）
-- `-l, --log-file`: ログファイル出力先（既定: `tools/ping_hosts.log`）
+- `-l, --log-file`: ログファイル出力先（既定: `tools/ping/ping_hosts.log`）
 
 ### 出力
 

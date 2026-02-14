@@ -48,7 +48,7 @@ DEFAULT_TIMEOUT = 2
 DEFAULT_TCP_TIMEOUT = 2.0
 DEFAULT_WORKERS = 20
 DEFAULT_LOG_FILE = SCRIPT_DIR / "ping_hosts.log"
-DEFAULT_LOG_FILE_DISPLAY = "tools/ping_hosts.log"
+DEFAULT_LOG_FILE_DISPLAY = "tools/ping/ping_hosts.log"
 
 # 実行モード
 MODE_ICMP = "icmp"
