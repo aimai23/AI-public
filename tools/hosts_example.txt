@@ -1,0 +1,6 @@
+# One target per line
+127.0.0.1
+localhost
+
+# Migration target examples
+192.168.10.10
