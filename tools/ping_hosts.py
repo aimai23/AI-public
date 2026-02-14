@@ -140,6 +140,7 @@ def parse_args() -> argparse.Namespace:
         help="対象一覧ファイル（1 行 1 ホスト名/IP）。",
     )
     parser.add_argument(
+        "-m",
         "--mode",
         choices=[MODE_ICMP, MODE_TCP, MODE_BOTH],
         default=MODE_ICMP,
@@ -160,13 +161,15 @@ def parse_args() -> argparse.Namespace:
         help=f"ICMP: 1 回あたりの応答待ち秒数（既定: {DEFAULT_TIMEOUT}）。",
     )
     parser.add_argument(
+        "-p",
         "--tcp-port",
         action="append",
         type=int,
         default=[],
-        help="TCP: 疎通確認ポート（複数指定可）。例: --tcp-port 22 --tcp-port 443",
+        help="TCP: 疎通確認ポート（複数指定可）。例: -p 22 -p 443",
     )
     parser.add_argument(
+        "-T",
         "--tcp-timeout",
         type=float,
         default=DEFAULT_TCP_TIMEOUT,
@@ -180,16 +183,19 @@ def parse_args() -> argparse.Namespace:
         help=f"並列ワーカー数（既定: {DEFAULT_WORKERS}）。",
     )
     parser.add_argument(
+        "-f",
         "--show-fail-output",
         action="store_true",
         help="失敗対象のみ詳細メッセージを標準出力にも表示する（通常はログのみ）。",
     )
     parser.add_argument(
+        "-a",
         "--show-all-output",
         action="store_true",
         help="全対象の詳細メッセージを標準出力にも表示する（通常はログのみ）。",
     )
     parser.add_argument(
+        "-l",
         "--log-file",
         type=Path,
         default=DEFAULT_LOG_FILE,
