@@ -345,7 +345,7 @@ def resolve_error_message(error_code: int) -> str:
         return "unknown error"
 
 
-def run_icmp_check(task: CheckTask, count: int, timeout: int, capture_output: bool) -> CheckResult:
+def run_icmp_check(task: CheckTask, count: int, timeout: int) -> CheckResult:
     """
     ICMP (ping) 実行。
     """
@@ -353,20 +353,17 @@ def run_icmp_check(task: CheckTask, count: int, timeout: int, capture_output: bo
     cmd_text = " ".join(cmd)
     started_at = time.monotonic()
 
-    run_kwargs: dict[str, object] = {"check": False}
-    if capture_output:
-        run_kwargs["stdout"] = subprocess.PIPE
-        run_kwargs["stderr"] = subprocess.STDOUT
-        run_kwargs["text"] = True
-    else:
-        run_kwargs["stdout"] = subprocess.DEVNULL
-        run_kwargs["stderr"] = subprocess.DEVNULL
-        run_kwargs["text"] = False
+    run_kwargs: dict[str, object] = {
+        "check": False,
+        "stdout": subprocess.PIPE,
+        "stderr": subprocess.STDOUT,
+        "text": True,
+    }
 
     try:
         proc = subprocess.run(cmd, **run_kwargs)
         elapsed = time.monotonic() - started_at
-        raw_output = proc.stdout if capture_output else ""
+        raw_output = proc.stdout
         output = raw_output if isinstance(raw_output, str) else ""
         return CheckResult(
             protocol=MODE_ICMP,
@@ -401,7 +398,7 @@ def run_icmp_check(task: CheckTask, count: int, timeout: int, capture_output: bo
         )
 
 
-def run_tcp_check(task: CheckTask, timeout: float, capture_output: bool) -> CheckResult:
+def run_tcp_check(task: CheckTask, timeout: float) -> CheckResult:
     """
     TCP connect 実行。
     """
@@ -439,7 +436,7 @@ def run_tcp_check(task: CheckTask, timeout: float, capture_output: bool) -> Chec
                 port=task.port,
                 returncode=rc,
                 elapsed_seconds=elapsed,
-                output=output if capture_output else "",
+                output=output,
                 command=cmd_text,
             )
     except socket.gaierror as exc:
@@ -467,7 +464,7 @@ def run_tcp_check(task: CheckTask, timeout: float, capture_output: bool) -> Chec
         )
 
 
-def run_task(task: CheckTask, args: argparse.Namespace, capture_output: bool) -> CheckResult:
+def run_task(task: CheckTask, args: argparse.Namespace) -> CheckResult:
     """
     タスク種別に応じた実行関数を呼び分ける。
     """
@@ -476,13 +473,11 @@ def run_task(task: CheckTask, args: argparse.Namespace, capture_output: bool) ->
             task=task,
             count=args.count,
             timeout=args.timeout,
-            capture_output=capture_output,
         )
     if task.protocol == MODE_TCP:
         return run_tcp_check(
             task=task,
             timeout=args.tcp_timeout,
-            capture_output=capture_output,
         )
 
     return CheckResult(
@@ -499,7 +494,6 @@ def run_task(task: CheckTask, args: argparse.Namespace, capture_output: bool) ->
 def run_checks_parallel(
     tasks: list[CheckTask],
     args: argparse.Namespace,
-    capture_output: bool,
 ) -> list[CheckResult]:
     """
     複数ジョブを並列実行する。
@@ -510,7 +504,7 @@ def run_checks_parallel(
     with ThreadPoolExecutor(max_workers=effective_workers) as executor:
         future_to_index: dict[Future[CheckResult], int] = {}
         for index, task in enumerate(tasks):
-            future = executor.submit(run_task, task, args, capture_output)
+            future = executor.submit(run_task, task, args)
             future_to_index[future] = index
 
         for future in as_completed(future_to_index):
@@ -674,8 +668,6 @@ def main() -> int:
             logger.error("ERROR: 実行ジョブが 0 件です。引数を確認してください。")
             return EXIT_INPUT_ERROR
 
-        # ログファイル詳細化のため、常に出力を取得する。
-        capture_output = True
         emit_header(
             logger=logger,
             args=args,
@@ -685,7 +677,6 @@ def main() -> int:
         results = run_checks_parallel(
             tasks=tasks,
             args=args,
-            capture_output=capture_output,
         )
         return emit_results(
             logger=logger,
